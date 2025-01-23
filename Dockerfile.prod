@@ -1,0 +1,55 @@
+FROM node:22-bullseye-slim AS base
+
+RUN apt-get update \
+    && apt-get install -y dnsutils build-essential procps python3 \
+    chromium fonts-noto  \
+    && apt-get clean
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# ---
+
+FROM base AS deps
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml ./
+
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable pnpm
+RUN pnpm config set auto-install-peers true
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm i --frozen-lockfile 
+
+# ---
+
+FROM base AS builder
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+
+COPY . .
+
+RUN corepack enable && pnpm build fundraiser
+
+# ---
+
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nestjs
+
+COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=deps --chown=nestjs:nodejs /app/node_modules ./node_modules
+
+USER nestjs
+
+EXPOSE 3000
+
+ENTRYPOINT ["node", "-r", "dotenv/config", "dist/apps/fundraiser/main"]
