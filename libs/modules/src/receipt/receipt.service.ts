@@ -19,16 +19,16 @@ export class ReceiptService {
     });
 
     let institutionName = env.institutionName;
-    let receiptNote = receipt.notes;
+    let receiptNotes = receipt.notes;
 
     if (env.mode !== 'production') {
       institutionName += '測試收據';
-      receiptNote = '此為測試收據 ' + receiptNote;
+      receiptNotes = '此為測試收據 ' + receiptNotes;
     }
 
     const receiptData = {
       institute: {
-        name: env.institutionName,
+        name: institutionName,
         address: env.institutionAddress,
         taxId: env.institutionTaxId,
         email: env.institutionEmail,
@@ -37,7 +37,7 @@ export class ReceiptService {
       receipt: {
         number: receipt.id,
         date: receipt.date.toISOString().split('T')[0],
-        notes: receipt.notes,
+        notes: receiptNotes,
       },
       donor: {
         name: receipt.donor.name,
