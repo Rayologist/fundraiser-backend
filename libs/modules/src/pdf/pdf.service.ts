@@ -21,7 +21,7 @@ export class PdfService {
 
       const pdf = await page.pdf({
         width: '160mm',
-        height: '275mm',
+        height: '280mm',
         ...pdfOptions,
       });
 
