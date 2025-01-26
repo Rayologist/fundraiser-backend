@@ -21,7 +21,7 @@ export class ReceiptService {
     let institutionName = env.institutionName;
     let receiptNote = receipt.notes;
 
-    if (env.mode === 'staging') {
+    if (env.mode !== 'production') {
       institutionName += '測試收據';
       receiptNote = '此為測試收據 ' + receiptNote;
     }
