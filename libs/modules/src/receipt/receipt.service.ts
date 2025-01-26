@@ -18,6 +18,14 @@ export class ReceiptService {
       maximumFractionDigits: 0,
     });
 
+    let institutionName = env.institutionName;
+    let receiptNote = receipt.notes;
+
+    if (env.mode === 'staging') {
+      institutionName += '測試收據';
+      receiptNote = '此為測試收據 ' + receiptNote;
+    }
+
     const receiptData = {
       institute: {
         name: env.institutionName,
