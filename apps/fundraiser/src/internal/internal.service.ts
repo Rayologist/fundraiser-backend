@@ -1,16 +1,20 @@
 import { Currency } from '@common/ddd/money';
+import { ReceiptMailer } from '@common/mailer/mailers/receipt.mailer';
 import { CreateCampaignUseCase } from '@domains/fundraiser/campaign/application/create-campaign/create-campaign.use-case';
 import {
   CreateProductInput,
   CreateProductUseCase,
 } from '@domains/fundraiser/product/application/create-product/create-product.use-case';
 import { Injectable } from '@nestjs/common';
+import { ulid } from 'ulidx';
 
 @Injectable()
-export class InitService {
+export class InternalService {
   constructor(
     private readonly createCampaignUseCase: CreateCampaignUseCase,
     private readonly createProductUseCase: CreateProductUseCase,
+
+    private readonly receiptMailer: ReceiptMailer,
   ) {}
   async init() {
     const gil = await this.createCampaignUseCase.execute({
@@ -48,7 +52,8 @@ export class InitService {
       },
       {
         title: '學生空間',
-        description: '硬體設備費用包含30組OA桌椅共240,000元（每組8,000元）、2張沙發共40,000元（每張20,000元）、2片磁性烤玻白板共20,000元（每片10,000元），總計新台幣300,000元整。',
+        description:
+          '硬體設備費用包含30組OA桌椅共240,000元（每組8,000元）、2張沙發共40,000元（每張20,000元）、2片磁性烤玻白板共20,000元（每片10,000元），總計新台幣300,000元整。',
         campaignId: gil.value.id,
         pictures: [],
         goalAmount: 300000,
@@ -57,7 +62,8 @@ export class InitService {
       },
       {
         title: '訪問學人辦公室',
-        description: '裝修工程費用包含隔間及空調工程300,000元、2組OA桌椅共16,000元（每組8,000元）、2個櫃子共9,000元（每個4,500元），總計新台幣325,000元整。',
+        description:
+          '裝修工程費用包含隔間及空調工程300,000元、2組OA桌椅共16,000元（每組8,000元）、2個櫃子共9,000元（每個4,500元），總計新台幣325,000元整。',
         campaignId: gil.value.id,
         pictures: [],
         goalAmount: 325000,
@@ -65,17 +71,28 @@ export class InitService {
         active: true,
       },
       {
-        title: '隔音錄音室',
-        description: '隔音錄音室建置工程預計費用為新台幣800,000元整。',
+        title: '認知實驗室',
+        description:
+          '認知實驗室設備建置費用共計3間，每間100,000元，總計新台幣300,000元整。',
         campaignId: gil.value.id,
         pictures: [],
-        goalAmount: 800000,
+        goalAmount: 300000,
+        currency: Currency.TWD,
+        active: true,
+      },
+      {
+        title: '伺服器機房',
+        description: '伺服器機房建置費用為新台幣100,000元整。',
+        campaignId: gil.value.id,
+        pictures: [],
+        goalAmount: 100000,
         currency: Currency.TWD,
         active: true,
       },
       {
         title: '智慧教室',
-        description: '智慧教室設備費用包含2台65吋電視共40,000元（每台20,000元）、24組課桌椅共120,000元（每組5,000元）、影音設備340,000元，總計新台幣500,000元整。',
+        description:
+          '智慧教室設備費用包含2台65吋電視共40,000元（每台20,000元）、24組課桌椅共120,000元（每組5,000元）、影音設備340,000元，總計新台幣500,000元整。',
         campaignId: gil.value.id,
         pictures: [],
         goalAmount: 500000,
@@ -128,16 +145,18 @@ export class InitService {
       },
       {
         title: '住宿費用',
-        description: '住宿包含每間3,900元的4人房27間、每間2,200元的2人房25間、每間3,200元的3人房2間、每間5,300元的6人房2間，共計56間房，總金額新台幣177,300元整。',
+        description:
+          '住宿七日費用包含：每日每間3,900元的4人房27間、每日每間2,200元的2人房25間、每日每間3,200元的3人房2間、每日每間5,300元的6人房2間，共計56間房，每日177,300元，總計新台幣1,241,100元整。',
         campaignId: tol.value.id,
         pictures: [],
-        goalAmount: 177300,
+        goalAmount: 1241100,
         currency: Currency.TWD,
         active: true,
       },
       {
         title: '場地租借費',
-        description: '7/20（第0天）共計30,820元，含評審會議及工作人員會議；7/21（第1天）共計115,100元，含開幕式及午晚餐；7/22（第2天）共計70,000元，為個人賽；7/23（第3天）共計39,340元，為評審批改；7/25（第5天）共計595,480元，含團體賽、演講、Jeopardy活動、用餐及評審批改；7/26（第6天）共計97,920元，含解題、閉幕式及午餐；七天場地費用總計新台幣948,660元整。',
+        description:
+          '7/20（第0天）共計30,820元，含評審會議及工作人員會議；7/21（第1天）共計115,100元，含開幕式及午晚餐；7/22（第2天）共計70,000元，為個人賽；7/23（第3天）共計39,340元，為評審批改；7/25（第5天）共計595,480元，含團體賽、演講、Jeopardy活動、用餐及評審批改；7/26（第6天）共計97,920元，含解題、閉幕式及午餐；七天場地費用總計新台幣948,660元整。',
         campaignId: tol.value.id,
         pictures: [],
         goalAmount: 948660,
@@ -146,7 +165,8 @@ export class InitService {
       },
       {
         title: '膳食費用',
-        description: '七天活動期間，預計每人每餐120元，供應350人共20頓餐點，總計餐飲費用為新台幣840,000元整。',
+        description:
+          '七天活動期間，預計每人每餐120元，供應350人共20頓餐點，總計餐飲費用為新台幣840,000元整。',
         campaignId: tol.value.id,
         pictures: [],
         goalAmount: 840000,
@@ -155,7 +175,8 @@ export class InitService {
       },
       {
         title: '活動費',
-        description: '活動費用包含文化之夜的個人演出及臺灣美食手作活動150,000元、文化遊覽活動30,000元、語奧傳統益智活動 Jeopardy 20,000元，總計新台幣200,000元整。',
+        description:
+          '活動費用包含文化之夜的個人演出及臺灣美食手作活動150,000元、文化遊覽活動30,000元、語奧傳統益智活動 Jeopardy 20,000元，總計新台幣200,000元整。',
         campaignId: tol.value.id,
         pictures: [],
         goalAmount: 200000,
@@ -164,7 +185,8 @@ export class InitService {
       },
       {
         title: '人事費用',
-        description: '人事費用包含一位碩士級兼任助理年薪72,000元（每月6,000元，共12個月）及網路系統外包費用350,000元（含網路系統及技術支持），總計新台幣422,000元整。',
+        description:
+          '人事費用包含一位碩士級兼任助理年薪72,000元（每月6,000元，共12個月）及網路系統外包費用350,000元（含網路系統及技術支持），總計新台幣422,000元整。',
         campaignId: tol.value.id,
         pictures: [],
         goalAmount: 422000,
@@ -178,6 +200,27 @@ export class InitService {
       if (product.isErr()) {
         throw product.error.message;
       }
+    });
+  }
+
+  async sendReceipt(args: { to: string }) {
+    await this.receiptMailer.send({
+      to: args.to,
+      receipt: {
+        id: ulid(),
+        userId: 'admin-receipt-tester',
+        date: new Date(),
+        donation: {
+          method: '信用卡付款',
+          amount: 300000,
+          type: '台灣語言文化與資訊協會預算測試、台灣語言文化與資訊業務費測試',
+        },
+        donor: {
+          name: '握小明',
+          taxId: 'A123456789',
+        },
+        notes: '---',
+      },
     });
   }
 }

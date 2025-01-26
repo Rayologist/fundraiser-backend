@@ -4,7 +4,7 @@ import { JWTService } from './jwt/jwt.service';
 import { HealthModule } from './health/health.module';
 import { CartModule } from './cart/cart.module';
 import { SessionModule } from './session/session.module';
-import { InitModule } from './init/init.module';
+import { InternalModule } from './internal/internal.module';
 import { CampaignModule } from './campaign/campaign.module';
 import { ProductModule } from './product/product.module';
 import { PaymentModule } from './payment/payment.module';
@@ -18,7 +18,7 @@ import { ReceiptDomainModule } from '@domains/fundraiser/receipt/receipt.module'
     HealthModule,
     CartModule,
     SessionModule,
-    InitModule,
+    InternalModule,
     CampaignModule,
     ProductModule,
     PaymentModule,
